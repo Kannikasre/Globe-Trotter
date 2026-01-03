@@ -138,3 +138,58 @@ def format_currency(amount, currency_code):
     """Format amount with currency symbol"""
     symbol = get_currency_symbol(currency_code)
     return f"{symbol}{amount:,.2f}"
+
+
+def get_currency_by_country(country_name):
+    """
+    Get suggested currency based on country name
+    Returns currency code
+    """
+    country_currency_map = {
+        # North America
+        'USA': 'USD', 'United States': 'USD', 'America': 'USD',
+        'Canada': 'CAD',
+        'Mexico': 'MXN',
+        
+        # Europe
+        'France': 'EUR', 'Germany': 'EUR', 'Spain': 'EUR', 'Italy': 'EUR',
+        'Netherlands': 'EUR', 'Belgium': 'EUR', 'Austria': 'EUR', 'Portugal': 'EUR',
+        'Greece': 'EUR', 'Ireland': 'EUR', 'Finland': 'EUR',
+        'United Kingdom': 'GBP', 'UK': 'GBP', 'England': 'GBP', 'Scotland': 'GBP', 'Wales': 'GBP',
+        'Switzerland': 'CHF',
+        'Sweden': 'SEK',
+        'Norway': 'NOK',
+        'Denmark': 'DKK',
+        'Poland': 'PLN',
+        'Turkey': 'TRY',
+        'Russia': 'RUB',
+        
+        # Asia
+        'Japan': 'JPY',
+        'China': 'CNY',
+        'India': 'INR',
+        'South Korea': 'KRW', 'Korea': 'KRW',
+        'Thailand': 'THB',
+        'Singapore': 'SGD',
+        'Hong Kong': 'HKD',
+        'UAE': 'AED', 'Dubai': 'AED', 'Abu Dhabi': 'AED',
+        
+        # Oceania
+        'Australia': 'AUD',
+        'New Zealand': 'NZD',
+        
+        # South America
+        'Brazil': 'BRL',
+        
+        # Africa
+        'South Africa': 'ZAR',
+    }
+    
+    # Search for country in map (case-insensitive)
+    country_name_lower = country_name.lower()
+    for country, currency in country_currency_map.items():
+        if country.lower() in country_name_lower or country_name_lower in country.lower():
+            return currency
+    
+    # Default to USD if not found
+    return 'USD'

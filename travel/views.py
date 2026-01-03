@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Trip, TripStop, Activity, Budget, SharedTrip, UserProfile
 from .forms import SignUpForm, TripForm, TripStopForm, ActivityForm, BudgetForm, UserProfileForm
-from .currency_utils import convert_currency, get_currency_symbol, CURRENCIES
+from .currency_utils import convert_currency, get_currency_symbol, CURRENCIES, get_currency_by_country
 
 
 # Authentication Views
@@ -203,6 +203,15 @@ def stop_create_view(request, trip_id):
             max_order = trip.stops.aggregate(models.Max('order_index'))['order_index__max'] or 0
             stop.order_index = max_order + 1
             stop.save()
+            
+            # Suggest currency update based on location if this is the first stop
+            if trip.stops.count() == 1:
+                suggested_currency = get_currency_by_country(stop.country)
+                if suggested_currency != trip.currency:
+                    messages.info(request, 
+                        f'💡 Tip: You might want to change your trip currency to {suggested_currency} '
+                        f'for {stop.country}. You can do this by editing your trip.')
+            
             messages.success(request, f'Stop "{stop.city_name}" added to trip!')
             return redirect('trip_detail', trip_id=trip.id)
     else:
@@ -322,23 +331,61 @@ def activity_delete_view(request, activity_id):
 # Budget Management
 @login_required
 def budget_edit_view(request, trip_id):
-    """Edit trip budget"""
+    """Edit trip budget with currency conversion"""
     trip = get_object_or_404(Trip, id=trip_id, user=request.user)
     budget, created = Budget.objects.get_or_create(trip=trip)
     
+    # Calculate actual activity costs from activities
+    actual_activity_cost = trip.stops.aggregate(total=Sum('activities__cost'))['total'] or 0
+    
     if request.method == 'POST':
-        form = BudgetForm(request.POST, instance=budget)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Budget updated successfully!')
-            return redirect('trip_detail', trip_id=trip.id)
+        # Check if currency conversion is requested
+        if 'convert_currency' in request.POST:
+            try:
+                from_currency = request.POST.get('convert_from')
+                to_currency = trip.currency
+                
+                # Convert each cost field
+                transport = float(request.POST.get('transport_cost', 0))
+                stay = float(request.POST.get('stay_cost', 0))
+                meals = float(request.POST.get('meals_cost', 0))
+                misc = float(request.POST.get('miscellaneous_cost', 0))
+                limit = float(request.POST.get('budget_limit', 0)) if request.POST.get('budget_limit') else None
+                
+                budget.transport_cost = convert_currency(transport, from_currency, to_currency)
+                budget.stay_cost = convert_currency(stay, from_currency, to_currency)
+                budget.meals_cost = convert_currency(meals, from_currency, to_currency)
+                budget.miscellaneous_cost = convert_currency(misc, from_currency, to_currency)
+                if limit:
+                    budget.budget_limit = convert_currency(limit, from_currency, to_currency)
+                budget.activity_cost = actual_activity_cost
+                budget.save()
+                
+                messages.success(request, f'Budget converted from {from_currency} to {to_currency}!')
+                return redirect('budget_edit', trip_id=trip.id)
+            except Exception as e:
+                messages.error(request, f'Conversion error: {str(e)}')
+        else:
+            form = BudgetForm(request.POST, instance=budget)
+            if form.is_valid():
+                budget = form.save(commit=False)
+                # Always use actual activity cost
+                budget.activity_cost = actual_activity_cost
+                budget.save()
+                messages.success(request, 'Budget updated successfully!')
+                return redirect('trip_detail', trip_id=trip.id)
     else:
+        # Pre-fill with actual activity cost
+        budget.activity_cost = actual_activity_cost
+        budget.save()
         form = BudgetForm(instance=budget)
     
     context = {
         'form': form,
         'trip': trip,
         'budget': budget,
+        'actual_activity_cost': actual_activity_cost,
+        'currencies': CURRENCIES,
     }
     return render(request, 'travel/budget_form.html', context)
 
