@@ -22,9 +22,12 @@ class TripForm(forms.ModelForm):
 
     class Meta:
         model = Trip
-        fields = ['title', 'start_date', 'end_date', 'description', 'cover_image', 'is_public']
+        fields = ['title', 'start_date', 'end_date', 'description', 'cover_image', 'currency', 'is_public']
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
+        }
+        help_texts = {
+            'currency': 'Select the currency for all costs in this trip',
         }
 
     def clean(self):
@@ -100,7 +103,10 @@ class UserProfileForm(forms.ModelForm):
     """Form for user profile"""
     class Meta:
         model = UserProfile
-        fields = ['profile_image', 'bio']
+        fields = ['profile_image', 'bio', 'preferred_currency']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4}),
+        }
+        help_texts = {
+            'preferred_currency': 'Your default currency for viewing trip costs',
         }

@@ -37,4 +37,7 @@ urlpatterns = [
     
     # Profile
     path('profile/', views.profile_view, name='profile'),
+    
+    # Currency Converter
+    path('currency-converter/', views.currency_converter_view, name='currency_converter'),
 ]

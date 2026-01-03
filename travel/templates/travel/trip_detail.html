@@ -15,6 +15,7 @@
         <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
             <span class="badge badge-primary">📅 {{ trip.start_date }} to {{ trip.end_date }}</span>
             <span class="badge badge-success">{{ trip.get_duration_days }} days</span>
+            <span class="badge badge-primary">💱 {{ trip.get_currency_display }}</span>
             {% if trip.is_public %}
             <span class="badge badge-warning">🔗 Public</span>
             {% endif %}

@@ -6,12 +6,40 @@ import uuid
 
 class Trip(models.Model):
     """Model for storing trip information"""
+    CURRENCY_CHOICES = [
+        ('USD', 'US Dollar ($)'),
+        ('EUR', 'Euro (€)'),
+        ('GBP', 'British Pound (£)'),
+        ('JPY', 'Japanese Yen (¥)'),
+        ('CNY', 'Chinese Yuan (¥)'),
+        ('INR', 'Indian Rupee (₹)'),
+        ('CAD', 'Canadian Dollar ($)'),
+        ('AUD', 'Australian Dollar ($)'),
+        ('CHF', 'Swiss Franc (Fr)'),
+        ('MXN', 'Mexican Peso ($)'),
+        ('BRL', 'Brazilian Real (R$)'),
+        ('ZAR', 'South African Rand (R)'),
+        ('SGD', 'Singapore Dollar ($)'),
+        ('HKD', 'Hong Kong Dollar ($)'),
+        ('NZD', 'New Zealand Dollar ($)'),
+        ('SEK', 'Swedish Krona (kr)'),
+        ('NOK', 'Norwegian Krone (kr)'),
+        ('KRW', 'South Korean Won (₩)'),
+        ('TRY', 'Turkish Lira (₺)'),
+        ('RUB', 'Russian Ruble (₽)'),
+        ('AED', 'UAE Dirham (د.إ)'),
+        ('THB', 'Thai Baht (฿)'),
+        ('PLN', 'Polish Zloty (zł)'),
+        ('DKK', 'Danish Krone (kr)'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips')
     title = models.CharField(max_length=200)
     start_date = models.DateField()
     end_date = models.DateField()
     description = models.TextField(blank=True, null=True)
     cover_image = models.ImageField(upload_to='trip_covers/', blank=True, null=True)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD', help_text='Currency for this trip')
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -142,9 +170,37 @@ class SharedTrip(models.Model):
 
 class UserProfile(models.Model):
     """Extended user profile"""
+    CURRENCY_CHOICES = [
+        ('USD', 'US Dollar ($)'),
+        ('EUR', 'Euro (€)'),
+        ('GBP', 'British Pound (£)'),
+        ('JPY', 'Japanese Yen (¥)'),
+        ('CNY', 'Chinese Yuan (¥)'),
+        ('INR', 'Indian Rupee (₹)'),
+        ('CAD', 'Canadian Dollar ($)'),
+        ('AUD', 'Australian Dollar ($)'),
+        ('CHF', 'Swiss Franc (Fr)'),
+        ('MXN', 'Mexican Peso ($)'),
+        ('BRL', 'Brazilian Real (R$)'),
+        ('ZAR', 'South African Rand (R)'),
+        ('SGD', 'Singapore Dollar ($)'),
+        ('HKD', 'Hong Kong Dollar ($)'),
+        ('NZD', 'New Zealand Dollar ($)'),
+        ('SEK', 'Swedish Krona (kr)'),
+        ('NOK', 'Norwegian Krone (kr)'),
+        ('KRW', 'South Korean Won (₩)'),
+        ('TRY', 'Turkish Lira (₺)'),
+        ('RUB', 'Russian Ruble (₽)'),
+        ('AED', 'UAE Dirham (د.إ)'),
+        ('THB', 'Thai Baht (฿)'),
+        ('PLN', 'Polish Zloty (zł)'),
+        ('DKK', 'Danish Krone (kr)'),
+    ]
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    preferred_currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='USD')
     saved_destinations = models.TextField(blank=True, null=True, help_text="JSON list of saved destinations")
     preferences = models.TextField(blank=True, null=True, help_text="JSON preferences")
     created_at = models.DateTimeField(auto_now_add=True)

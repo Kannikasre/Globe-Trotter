@@ -1,0 +1,83 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Currency Converter - GlobeTrotter{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <h2 class="card-header">💱 Currency Converter</h2>
+        
+        <p style="color: #666; margin-bottom: 2rem;">
+            Convert between different currencies for your travel planning
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" name="amount" id="amount" step="0.01" min="0" 
+                       value="{% if result %}{{ result.amount }}{% else %}100{% endif %}" 
+                       required style="font-size: 1.5rem; padding: 1rem;">
+            </div>
+            
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label for="from_currency">From Currency</label>
+                    <select name="from_currency" id="from_currency" style="padding: 1rem; font-size: 1rem;">
+                        {% for code, name in currencies %}
+                        <option value="{{ code }}" {% if result and result.from_currency == code %}selected{% elif code == 'USD' and not result %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="to_currency">To Currency</label>
+                    <select name="to_currency" id="to_currency" style="padding: 1rem; font-size: 1rem;">
+                        {% for code, name in currencies %}
+                        <option value="{{ code }}" {% if result and result.to_currency == code %}selected{% elif code == 'EUR' and not result %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">
+                🔄 Convert Currency
+            </button>
+        </form>
+        
+        {% if result %}
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 10px; margin-top: 2rem; text-align: center;">
+            <div style="font-size: 1.2rem; margin-bottom: 1rem; opacity: 0.9;">
+                {{ result.from_symbol }}{{ result.amount|floatformat:2 }} {{ result.from_currency }}
+            </div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⬇️</div>
+            <div style="font-size: 2.5rem; font-weight: bold;">
+                {{ result.to_symbol }}{{ result.converted_amount|floatformat:2 }}
+            </div>
+            <div style="font-size: 1.2rem; opacity: 0.9;">
+                {{ result.to_currency }}
+            </div>
+        </div>
+        
+        <div style="background: #f8f9ff; padding: 1rem; border-radius: 5px; margin-top: 1rem; font-size: 0.9rem; color: #666; text-align: center;">
+            💡 Exchange rates are updated daily. Actual rates may vary.
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;">Quick Tips</h3>
+        <ul style="color: #666; line-height: 1.8;">
+            <li>Set your preferred currency in your <a href="{% url 'profile' %}">profile settings</a></li>
+            <li>Each trip can have its own currency</li>
+            <li>Budget breakdowns will show in the trip's currency</li>
+            <li>Use this tool to estimate costs when planning international trips</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

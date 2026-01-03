@@ -9,6 +9,7 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Trip, TripStop, Activity, Budget, SharedTrip, UserProfile
 from .forms import SignUpForm, TripForm, TripStopForm, ActivityForm, BudgetForm, UserProfileForm
+from .currency_utils import convert_currency, get_currency_symbol, CURRENCIES
 
 
 # Authentication Views
@@ -418,3 +419,34 @@ def home_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'travel/home.html')
+
+
+# Currency Converter
+@login_required
+def currency_converter_view(request):
+    """Currency converter tool"""
+    result = None
+    
+    if request.method == 'POST':
+        try:
+            amount = float(request.POST.get('amount', 0))
+            from_currency = request.POST.get('from_currency', 'USD')
+            to_currency = request.POST.get('to_currency', 'EUR')
+            
+            converted = convert_currency(amount, from_currency, to_currency)
+            result = {
+                'amount': amount,
+                'from_currency': from_currency,
+                'to_currency': to_currency,
+                'converted_amount': converted,
+                'from_symbol': get_currency_symbol(from_currency),
+                'to_symbol': get_currency_symbol(to_currency),
+            }
+        except Exception as e:
+            messages.error(request, f'Error converting currency: {str(e)}')
+    
+    context = {
+        'currencies': CURRENCIES,
+        'result': result,
+    }
+    return render(request, 'travel/currency_converter.html', context)
