@@ -4,63 +4,98 @@
 
 {% block content %}
 <div class="container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1>Welcome, {{ user.username }}!</h1>
-        <a href="{% url 'trip_create' %}" class="btn btn-primary">+ Plan New Trip</a>
+    <!-- Welcome Header -->
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; margin-bottom: 2rem; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50px; right: -50px; font-size: 12rem; opacity: 0.1;">👋</div>
+        <div style="position: relative; z-index: 1;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; color: white;">Welcome back, {{ user.username }}! ✨</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 1.5rem;">Ready to plan your next adventure?</p>
+            <a href="{% url 'trip_create' %}" class="btn" style="background: white; color: #667eea; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                ✈️ Plan New Trip
+            </a>
+        </div>
     </div>
+    
+    {% if error %}
+    <div class="alert alert-danger" style="margin-bottom: 2rem;">
+        <strong>Error:</strong> {{ error }}
+    </div>
+    {% endif %}
     
     <!-- Stats -->
     <div class="grid grid-3 mb-2">
-        <div class="card text-center">
-            <h3 style="color: #667eea; font-size: 2.5rem;">{{ total_trips }}</h3>
-            <p>Total Trips</p>
+        <div class="card text-center" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); border: none; color: #4a148c; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.1;">📊</div>
+            <h3 style="color: #4a148c; font-size: 3rem; font-weight: 800; margin: 0;">{{ total_trips }}</h3>
+            <p style="font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0 0 0;">Total Trips</p>
         </div>
-        <div class="card text-center">
-            <h3 style="color: #28a745; font-size: 2.5rem;">{{ upcoming_trips|length }}</h3>
-            <p>Upcoming Trips</p>
+        <div class="card text-center" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); border: none; color: #1565c0; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.1;">🎒</div>
+            <h3 style="color: #1565c0; font-size: 3rem; font-weight: 800; margin: 0;">{{ upcoming_trips|length }}</h3>
+            <p style="font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0 0 0;">Upcoming Trips</p>
         </div>
-        <div class="card text-center">
-            <h3 style="color: #6c757d; font-size: 2.5rem;">{{ past_trips|length }}</h3>
-            <p>Past Trips</p>
+        <div class="card text-center" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border: none; color: #d84315; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; font-size: 6rem; opacity: 0.1;">📷</div>
+            <h3 style="color: #d84315; font-size: 3rem; font-weight: 800; margin: 0;">{{ past_trips|length }}</h3>
+            <p style="font-size: 1.1rem; font-weight: 600; margin: 0.5rem 0 0 0;">Past Trips</p>
         </div>
     </div>
     
     <!-- Upcoming Trips -->
-    <div class="card">
-        <h2 class="card-header">Upcoming Trips</h2>
+    <div class="card" style="border: none; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <h2 style="color: #2c3e50; margin-bottom: 1.5rem; font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 2rem;">🗓️</span> Upcoming Trips
+        </h2>
         {% if upcoming_trips %}
         <div class="grid grid-2">
             {% for trip in upcoming_trips %}
-            <div style="border: 1px solid #eee; border-radius: 5px; padding: 1.5rem;">
-                <h3 style="color: #667eea; margin-bottom: 0.5rem;">{{ trip.title }}</h3>
-                <p style="color: #666; margin-bottom: 1rem;">
-                    📅 {{ trip.start_date }} - {{ trip.end_date }} ({{ trip.get_duration_days }} days)
-                </p>
+            <div style="background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 8px 20px rgba(0,0,0,0.1); border-left: 5px solid #667eea; transition: all 0.3s ease; position: relative; overflow: hidden;"
+                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 12px 30px rgba(102,126,234,0.2)';" 
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';">
+                <div style="position: absolute; top: -10px; right: -10px; font-size: 4rem; opacity: 0.05;">✈️</div>
+                <h3 style="color: #667eea; margin-bottom: 0.75rem; font-size: 1.4rem; font-weight: 700;">{{ trip.title }}</h3>
+                <div style="background: #e3f2fd; padding: 0.5rem 1rem; border-radius: 10px; margin-bottom: 1rem; display: inline-block;">
+                    <span style="color: #1565c0; font-weight: 600;">📅 {{ trip.start_date }} - {{ trip.end_date }}</span>
+                    <span style="background: #1565c0; color: white; padding: 0.2rem 0.6rem; border-radius: 12px; margin-left: 0.5rem; font-size: 0.85rem;">{{ trip.get_duration_days }} days</span>
+                </div>
                 {% if trip.description %}
-                <p style="margin-bottom: 1rem;">{{ trip.description|truncatewords:20 }}</p>
+                <p style="color: #666; margin-bottom: 1.5rem; line-height: 1.6;">{{ trip.description|truncatewords:20 }}</p>
                 {% endif %}
-                <div style="display: flex; gap: 0.5rem;">
-                    <a href="{% url 'trip_detail' trip.id %}" class="btn btn-primary">View Details</a>
-                    <a href="{% url 'trip_edit' trip.id %}" class="btn btn-secondary">Edit</a>
+                <div style="display: flex; gap: 0.75rem;">
+                    <a href="{% url 'trip_detail' trip.id %}" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; flex: 1; text-align: center;">View Details</a>
+                    <a href="{% url 'trip_edit' trip.id %}" class="btn" style="background: #6c757d; color: white;">✏️ Edit</a>
                 </div>
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <p style="text-align: center; color: #999; padding: 2rem;">No upcoming trips. Start planning your next adventure!</p>
+        <div style="text-align: center; padding: 3rem; background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🗺️</div>
+            <h3 style="color: #333; margin-bottom: 0.5rem;">No Upcoming Trips</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Start planning your next adventure!</p>
+            <a href="{% url 'trip_create' %}" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.75rem 2rem;">
+                ✈️ Create Your First Trip
+            </a>
+        </div>
         {% endif %}
     </div>
     
     <!-- Recent Past Trips -->
     {% if past_trips %}
-    <div class="card mt-2">
-        <h2 class="card-header">Recent Past Trips</h2>
+    <div class="card mt-2" style="border: none; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+        <h2 style="color: #d84315; margin-bottom: 1.5rem; font-size: 1.8rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 2rem;">📷</span> Recent Past Trips
+        </h2>
         <div class="grid grid-3">
             {% for trip in past_trips %}
-            <div style="border: 1px solid #eee; border-radius: 5px; padding: 1rem;">
-                <h4 style="color: #6c757d;">{{ trip.title }}</h4>
-                <p style="font-size: 0.9rem; color: #666;">{{ trip.start_date }} - {{ trip.end_date }}</p>
-                <a href="{% url 'trip_detail' trip.id %}" class="btn btn-secondary" style="margin-top: 0.5rem;">View</a>
+            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.3s ease;"
+                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)';" 
+                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';">
+                <h4 style="color: #d84315; margin-bottom: 0.5rem; font-weight: 700;">{{ trip.title }}</h4>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <span>📅</span> {{ trip.start_date }} - {{ trip.end_date }}
+                </p>
+                <a href="{% url 'trip_detail' trip.id %}" class="btn" style="background: #d84315; color: white; width: 100%; text-align: center;">View Memories</a>
             </div>
             {% endfor %}
         </div>
@@ -68,7 +103,9 @@
     {% endif %}
     
     <div class="text-center mt-2">
-        <a href="{% url 'trip_list' %}" class="btn btn-primary">View All Trips</a>
+        <a href="{% url 'trip_list' %}" class="btn" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.75rem 2.5rem; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(102,126,234,0.3);">
+            📋 View All Trips
+        </a>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+    <style>
+        body {
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 50px;
+        }
+        .box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>✅ Template System Works!</h1>
+        <p>If you can see this, Django templates are rendering correctly.</p>
+        <p><strong>User:</strong> {{ user.username|default:"Not logged in" }}</p>
+        <hr>
+        <ul>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        </ul>
+    </div>
+</body>
+</html>

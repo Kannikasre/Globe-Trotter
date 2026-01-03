@@ -4,12 +4,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q, Sum
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Trip, TripStop, Activity, Budget, SharedTrip, UserProfile
 from .forms import SignUpForm, TripForm, TripStopForm, ActivityForm, BudgetForm, UserProfileForm
 from .currency_utils import convert_currency, get_currency_symbol, CURRENCIES, get_currency_by_country
+
+
+# Test view for debugging
+def test_view(request):
+    """Simple test view to verify templates work"""
+    return render(request, 'travel/test.html')
 
 
 # Authentication Views
@@ -65,26 +71,42 @@ def logout_view(request):
 
 # Dashboard and Home
 @login_required
+@login_required
 def dashboard_view(request):
     """User dashboard showing upcoming trips"""
-    upcoming_trips = Trip.objects.filter(
-        user=request.user,
-        end_date__gte=timezone.now().date()
-    ).order_by('start_date')[:5]
-    
-    past_trips = Trip.objects.filter(
-        user=request.user,
-        end_date__lt=timezone.now().date()
-    ).order_by('-end_date')[:3]
-    
-    total_trips = Trip.objects.filter(user=request.user).count()
-    
-    context = {
-        'upcoming_trips': upcoming_trips,
-        'past_trips': past_trips,
-        'total_trips': total_trips,
-    }
-    return render(request, 'travel/dashboard.html', context)
+    print(f"=== DASHBOARD VIEW CALLED === User: {request.user.username if request.user.is_authenticated else 'Anonymous'}")
+    try:
+        upcoming_trips = Trip.objects.filter(
+            user=request.user,
+            end_date__gte=timezone.now().date()
+        ).order_by('start_date')[:5]
+        
+        past_trips = Trip.objects.filter(
+            user=request.user,
+            end_date__lt=timezone.now().date()
+        ).order_by('-end_date')[:3]
+        
+        total_trips = Trip.objects.filter(user=request.user).count()
+        
+        print(f"Stats: Total={total_trips}, Upcoming={upcoming_trips.count()}, Past={past_trips.count()}")
+        
+        context = {
+            'upcoming_trips': upcoming_trips,
+            'past_trips': past_trips,
+            'total_trips': total_trips,
+        }
+        print(f"Rendering dashboard.html with context: {list(context.keys())}")
+        return render(request, 'travel/dashboard.html', context)
+    except Exception as e:
+        print(f"Dashboard Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return render(request, 'travel/dashboard.html', {
+            'upcoming_trips': [],
+            'past_trips': [],
+            'total_trips': 0,
+            'error': str(e)
+        })
 
 
 # Trip Management Views
