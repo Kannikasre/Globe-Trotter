@@ -1,0 +1,44 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Share {{ trip.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card text-center">
+        <h2 class="card-header">Share Your Trip</h2>
+        
+        <div style="font-size: 3rem; margin: 1rem 0;">🔗</div>
+        
+        <h3 style="color: #667eea; margin-bottom: 1rem;">{{ trip.title }}</h3>
+        
+        <p style="margin-bottom: 2rem;">Your trip is now public! Share this link with anyone:</p>
+        
+        <div style="background: #f8f9ff; padding: 1.5rem; border-radius: 5px; margin-bottom: 2rem;">
+            <input type="text" value="{{ share_url }}" id="shareUrl" readonly 
+                   style="width: 100%; padding: 1rem; font-size: 1rem; border: 2px solid #667eea; border-radius: 5px; text-align: center;">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem;">
+            <button onclick="copyToClipboard()" class="btn btn-primary">📋 Copy Link</button>
+            <a href="{{ share_url }}" target="_blank" class="btn btn-secondary">👁️ Preview</a>
+        </div>
+        
+        <div style="background: #d1ecf1; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+            <p style="margin: 0; color: #0c5460;">
+                <strong>Stats:</strong> This trip has been viewed {{ share.views_count }} time{{ share.views_count|pluralize }}
+            </p>
+        </div>
+        
+        <a href="{% url 'trip_detail' trip.id %}" class="btn btn-secondary">Back to Trip</a>
+    </div>
+</div>
+
+<script>
+function copyToClipboard() {
+    const input = document.getElementById('shareUrl');
+    input.select();
+    document.execCommand('copy');
+    alert('Link copied to clipboard!');
+}
+</script>
+{% endblock %}

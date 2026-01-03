@@ -1,0 +1,90 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}{{ trip.title }} - Shared Trip{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div style="background: #d1ecf1; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem; text-align: center;">
+            <p style="margin: 0; color: #0c5460;">👁️ You're viewing a shared trip itinerary</p>
+        </div>
+        
+        {% if trip.cover_image %}
+        <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 1.5rem;">
+        {% endif %}
+        
+        <h1 style="color: #667eea; margin-bottom: 1rem;">{{ trip.title }}</h1>
+        
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+            <span class="badge badge-primary">📅 {{ trip.start_date }} to {{ trip.end_date }}</span>
+            <span class="badge badge-success">{{ trip.get_duration_days }} days</span>
+            <span class="badge badge-primary">{{ stops|length }} stops</span>
+        </div>
+        
+        {% if trip.description %}
+        <p style="color: #666; margin-bottom: 1.5rem;">{{ trip.description }}</p>
+        {% endif %}
+    </div>
+    
+    <!-- Budget Overview -->
+    <div class="card">
+        <h2 class="card-header">Budget Overview</h2>
+        <div class="grid grid-2">
+            <div>
+                <h3 style="font-size: 2rem; color: #667eea;">${{ budget.total_cost|floatformat:2 }}</h3>
+                <p style="color: #666;">Estimated Total</p>
+            </div>
+            <div>
+                <p><strong>Transport:</strong> ${{ budget.transport_cost|floatformat:2 }}</p>
+                <p><strong>Stay:</strong> ${{ budget.stay_cost|floatformat:2 }}</p>
+                <p><strong>Meals:</strong> ${{ budget.meals_cost|floatformat:2 }}</p>
+                <p><strong>Activities:</strong> ${{ budget.activity_cost|floatformat:2 }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Itinerary -->
+    <div class="card">
+        <h2 class="card-header">Itinerary</h2>
+        
+        {% for stop in stops %}
+        <div style="border: 2px solid #667eea; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; background: #f8f9ff;">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">
+                {{ forloop.counter }}. {{ stop.city_name }}, {{ stop.country }}
+            </h3>
+            <p style="color: #666; margin-bottom: 1rem;">
+                📅 {{ stop.start_date }} - {{ stop.end_date }} ({{ stop.get_duration_days }} days)
+            </p>
+            
+            {% if stop.notes %}
+            <p style="background: white; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">{{ stop.notes }}</p>
+            {% endif %}
+            
+            {% if stop.activities.all %}
+            <h4 style="margin-bottom: 0.75rem; color: #333;">Activities</h4>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for activity in stop.activities.all %}
+                <div style="background: white; padding: 1rem; border-radius: 5px; border-left: 4px solid #28a745;">
+                    <h5 style="color: #333; margin-bottom: 0.25rem;">{{ activity.name }}</h5>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                        <span class="badge badge-primary">{{ activity.get_category_display }}</span>
+                        <span class="badge badge-success">💰 ${{ activity.cost }}</span>
+                        <span class="badge badge-primary">⏱️ {{ activity.duration }}</span>
+                    </div>
+                    {% if activity.notes %}
+                    <p style="font-size: 0.9rem; color: #666; margin: 0;">{{ activity.notes }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="card text-center">
+        <p style="color: #666; margin-bottom: 1rem;">Want to create your own trip itinerary?</p>
+        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up for Free</a>
+    </div>
+</div>
+{% endblock %}

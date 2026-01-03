@@ -1,0 +1,31 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}{{ action }} Activity - GlobeTrotter{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <h2 class="card-header">{{ action }} Activity for {{ stop.city_name }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: #666;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem;">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">{{ action }} Activity</button>
+                <a href="{% url 'trip_detail' stop.trip.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,456 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Manage Budget - {{ trip.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .budget-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .budget-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        margin-bottom: 2rem;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .budget-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .budget-header::before {
+        content: '💰';
+        font-size: 8rem;
+        position: absolute;
+        right: -2rem;
+        top: -2rem;
+        opacity: 0.1;
+    }
+    
+    .total-display {
+        font-size: 3.5rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        margin: 1rem 0;
+    }
+    
+    .cost-input-group {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1rem;
+        border-left: 5px solid;
+        transition: all 0.3s ease;
+    }
+    
+    .cost-input-group:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .cost-input-group.transport { border-color: #667eea; }
+    .cost-input-group.stay { border-color: #f093fb; }
+    .cost-input-group.meals { border-color: #4facfe; }
+    .cost-input-group.activity { border-color: #43e97b; }
+    .cost-input-group.misc { border-color: #fa709a; }
+    .cost-input-group.limit { border-color: #feca57; }
+    
+    .cost-icon {
+        font-size: 2.5rem;
+        margin-right: 1rem;
+        display: inline-block;
+    }
+    
+    .cost-input {
+        width: 100%;
+        padding: 1rem 1.5rem;
+        font-size: 1.5rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .cost-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+        transform: scale(1.02);
+    }
+    
+    .converter-section {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 2rem 0;
+        border: 3px dashed #f39c12;
+    }
+    
+    .converter-title {
+        font-size: 1.5rem;
+        color: #2d3436;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .breakdown-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+    
+    .breakdown-item {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .breakdown-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .breakdown-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .breakdown-amount {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2d3436;
+    }
+    
+    .progress-bar {
+        background: #ecf0f1;
+        height: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .progress-fill.over-budget {
+        background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+    }
+    
+    .alert-box {
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+    }
+    
+    .alert-warning {
+        background: linear-gradient(135deg, #fff4e6 0%, #ffe4cc 100%);
+        border: 2px solid #ff9900;
+        color: #cc7700;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%);
+        border: 2px solid #27ae60;
+        color: #1e8449;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 3rem;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+    }
+    
+    .btn-convert {
+        background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%);
+        color: #2d3436;
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-convert:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(254, 202, 87, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="budget-container">
+    <div class="container" style="max-width: 1000px;">
+        <!-- Header -->
+        <div class="budget-card">
+            <div class="budget-header">
+                <h1 style="margin: 0; position: relative; z-index: 1;">💰 Budget Manager</h1>
+                <h2 style="margin: 0.5rem 0; position: relative; z-index: 1;">{{ trip.title }}</h2>
+                <div class="total-display" id="totalDisplay">
+                    {{ budget.total_cost|floatformat:2 }} {{ trip.get_currency_display }}
+                </div>
+                {% if budget.budget_limit %}
+                <div style="position: relative; z-index: 1;">
+                    <div class="progress-bar">
+                        <div class="progress-fill {% if budget.is_over_budget %}over-budget{% endif %}" 
+                             style="width: {% widthratio budget.total_cost budget.budget_limit 100 %}%">
+                            {% widthratio budget.total_cost budget.budget_limit 100 %}%
+                        </div>
+                    </div>
+                    <p style="margin: 0.5rem 0;">
+                        Limit: {{ budget.budget_limit|floatformat:2 }} {{ trip.get_currency_display }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if budget.is_over_budget %}
+            <div class="alert-box alert-warning">
+                <span style="font-size: 2rem;">⚠️</span>
+                <div>
+                    <strong>Over Budget Alert!</strong>
+                    <p style="margin: 0;">You're {{ budget.total_cost|floatformat:2 }} over your limit of {{ budget.budget_limit|floatformat:2 }}</p>
+                </div>
+            </div>
+            {% elif budget.budget_limit %}
+            <div class="alert-box alert-success">
+                <span style="font-size: 2rem;">✅</span>
+                <div>
+                    <strong>On Track!</strong>
+                    <p style="margin: 0;">You're within your budget limit</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Breakdown -->
+            <div class="breakdown-grid">
+                <div class="breakdown-item">
+                    <div class="breakdown-label">🚗 Transport</div>
+                    <div class="breakdown-amount">{{ budget.transport_cost|floatformat:2 }}</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">🏨 Stay</div>
+                    <div class="breakdown-amount">{{ budget.stay_cost|floatformat:2 }}</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">🍽️ Meals</div>
+                    <div class="breakdown-amount">{{ budget.meals_cost|floatformat:2 }}</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">🎯 Activities</div>
+                    <div class="breakdown-amount">{{ actual_activity_cost|floatformat:2 }}</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">💼 Misc</div>
+                    <div class="breakdown-amount">{{ budget.miscellaneous_cost|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Currency Converter -->
+        <div class="budget-card converter-section">
+            <div class="converter-title">
+                <span style="font-size: 2rem;">💱</span>
+                <strong>Currency Converter</strong>
+            </div>
+            <p style="color: #2d3436; margin-bottom: 1.5rem;">
+                Convert your budget amounts from any currency to {{ trip.get_currency_display }}
+            </p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="grid grid-2" style="margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label style="font-weight: bold; color: #2d3436;">From Currency</label>
+                        <select name="convert_from" style="padding: 0.8rem; border-radius: 10px; border: 2px solid #f39c12; font-size: 1rem;">
+                            {% for code, name in currencies %}
+                            <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-weight: bold; color: #2d3436;">To Currency (Trip)</label>
+                        <input type="text" value="{{ trip.get_currency_display }}" readonly 
+                               style="padding: 0.8rem; border-radius: 10px; border: 2px solid #27ae60; background: #e8f8f5; font-size: 1rem;">
+                    </div>
+                </div>
+                <input type="hidden" name="transport_cost" value="{{ budget.transport_cost }}">
+                <input type="hidden" name="stay_cost" value="{{ budget.stay_cost }}">
+                <input type="hidden" name="meals_cost" value="{{ budget.meals_cost }}">
+                <input type="hidden" name="miscellaneous_cost" value="{{ budget.miscellaneous_cost }}">
+                <input type="hidden" name="budget_limit" value="{{ budget.budget_limit }}">
+                <button type="submit" name="convert_currency" class="btn-convert">
+                    🔄 Convert All Amounts to {{ trip.currency }}
+                </button>
+            </form>
+            <p style="color: #636e72; font-size: 0.9rem; margin-top: 1rem; font-style: italic;">
+                💡 This will convert all your budget amounts from the selected currency to your trip's currency
+            </p>
+        </div>
+        
+        <!-- Budget Form -->
+        <div class="budget-card">
+            <h2 style="color: #2d3436; margin-bottom: 2rem; text-align: center;">
+                ✏️ Edit Budget Details
+            </h2>
+            <form method="post" id="budgetForm">
+                {% csrf_token %}
+                
+                <div class="cost-input-group transport">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">🚗</span>
+                        <span>Transport Costs</span>
+                    </label>
+                    <input type="number" name="transport_cost" step="0.01" min="0" 
+                           value="{{ budget.transport_cost }}" class="cost-input" 
+                           onchange="updateTotal()" placeholder="Enter transport costs">
+                </div>
+                
+                <div class="cost-input-group stay">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">🏨</span>
+                        <span>Accommodation Costs</span>
+                    </label>
+                    <input type="number" name="stay_cost" step="0.01" min="0" 
+                           value="{{ budget.stay_cost }}" class="cost-input" 
+                           onchange="updateTotal()" placeholder="Enter accommodation costs">
+                </div>
+                
+                <div class="cost-input-group meals">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">🍽️</span>
+                        <span>Meals & Dining</span>
+                    </label>
+                    <input type="number" name="meals_cost" step="0.01" min="0" 
+                           value="{{ budget.meals_cost }}" class="cost-input" 
+                           onchange="updateTotal()" placeholder="Enter meal costs">
+                </div>
+                
+                <div class="cost-input-group activity">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">🎯</span>
+                        <span>Activities (Auto-calculated)</span>
+                    </label>
+                    <input type="number" name="activity_cost" step="0.01" min="0" 
+                           value="{{ actual_activity_cost }}" class="cost-input" 
+                           readonly style="background: #ecf0f1; cursor: not-allowed;">
+                    <small style="color: #636e72; display: block; margin-top: 0.5rem;">
+                        ℹ️ Automatically calculated from your trip activities
+                    </small>
+                </div>
+                
+                <div class="cost-input-group misc">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">💼</span>
+                        <span>Miscellaneous</span>
+                    </label>
+                    <input type="number" name="miscellaneous_cost" step="0.01" min="0" 
+                           value="{{ budget.miscellaneous_cost }}" class="cost-input" 
+                           onchange="updateTotal()" placeholder="Enter other costs">
+                </div>
+                
+                <div class="cost-input-group limit">
+                    <label style="display: flex; align-items: center; margin-bottom: 0.5rem; font-weight: bold; color: #2d3436;">
+                        <span class="cost-icon">🎯</span>
+                        <span>Budget Limit (Optional)</span>
+                    </label>
+                    <input type="number" name="budget_limit" step="0.01" min="0" 
+                           value="{{ budget.budget_limit|default:'' }}" class="cost-input" 
+                           placeholder="Set a spending limit">
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn-save">
+                        💾 Save Budget
+                    </button>
+                    <a href="{% url 'trip_detail' trip.id %}" class="btn btn-secondary" 
+                       style="margin-left: 1rem; padding: 1rem 2rem; border-radius: 50px;">
+                        ← Back to Trip
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Quick Link to Currency Converter -->
+        <div class="budget-card" style="text-align: center; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+            <h3 style="color: #2d3436; margin-bottom: 1rem;">Need to Convert Individual Amounts?</h3>
+            <a href="{% url 'currency_converter' %}" class="btn btn-primary" style="padding: 1rem 2rem; border-radius: 50px;">
+                💱 Open Full Currency Converter
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateTotal() {
+    const transport = parseFloat(document.querySelector('input[name="transport_cost"]').value) || 0;
+    const stay = parseFloat(document.querySelector('input[name="stay_cost"]').value) || 0;
+    const meals = parseFloat(document.querySelector('input[name="meals_cost"]').value) || 0;
+    const activity = parseFloat(document.querySelector('input[name="activity_cost"]').value) || 0;
+    const misc = parseFloat(document.querySelector('input[name="miscellaneous_cost"]').value) || 0;
+    
+    const total = transport + stay + meals + activity + misc;
+    document.getElementById('totalDisplay').textContent = total.toFixed(2) + ' {{ trip.get_currency_display }}';
+}
+
+// Update total on page load
+document.addEventListener('DOMContentLoaded', updateTotal);
+</script>
+{% endblock %}

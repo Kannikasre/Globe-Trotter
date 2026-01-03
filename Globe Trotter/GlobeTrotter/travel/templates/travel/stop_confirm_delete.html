@@ -1,0 +1,24 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Delete Stop{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 3rem;">
+    <div class="card">
+        <h2 class="card-header" style="color: #dc3545;">Confirm Deletion</h2>
+        <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
+            Are you sure you want to delete the stop <strong>"{{ stop.city_name }}, {{ stop.country }}"</strong>?
+        </p>
+        <div style="background: #f8d7da; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem; color: #721c24;">
+            <p style="margin: 0;"><strong>Warning:</strong> This will also delete all activities associated with this stop.</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-danger">Yes, Delete Stop</button>
+                <a href="{% url 'trip_detail' stop.trip.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
