@@ -1,0 +1,70 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}My Trips - GlobeTrotter{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>My Trips</h1>
+        <a href="{% url 'trip_create' %}" class="btn btn-primary">+ Plan New Trip</a>
+    </div>
+    
+    <!-- Filter -->
+    <div class="card mb-2">
+        <div style="display: flex; gap: 1rem;">
+            <a href="?status=all" class="btn {% if status == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">All</a>
+            <a href="?status=upcoming" class="btn {% if status == 'upcoming' %}btn-primary{% else %}btn-secondary{% endif %}">Upcoming</a>
+            <a href="?status=ongoing" class="btn {% if status == 'ongoing' %}btn-primary{% else %}btn-secondary{% endif %}">Ongoing</a>
+            <a href="?status=past" class="btn {% if status == 'past' %}btn-primary{% else %}btn-secondary{% endif %}">Past</a>
+        </div>
+    </div>
+    
+    <!-- Trips List -->
+    {% if trips %}
+    <div class="grid grid-2">
+        {% for trip in trips %}
+        <div class="card">
+            {% if trip.cover_image %}
+            <img src="{{ trip.cover_image.url }}" alt="{{ trip.title }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 1rem;">
+            {% endif %}
+            
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">{{ trip.title }}</h3>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <span class="badge badge-primary">📅 {{ trip.start_date }} to {{ trip.end_date }}</span>
+                <span class="badge badge-success">{{ trip.get_duration_days }} days</span>
+                {% if trip.is_public %}
+                <span class="badge badge-warning">🔗 Public</span>
+                {% endif %}
+            </div>
+            
+            {% if trip.description %}
+            <p style="color: #666; margin-bottom: 1rem;">{{ trip.description|truncatewords:15 }}</p>
+            {% endif %}
+            
+            <div style="border-top: 1px solid #eee; padding-top: 1rem; margin-top: 1rem;">
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">
+                    <strong>Budget:</strong> ${{ trip.get_total_budget|floatformat:2 }}
+                </p>
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
+                    <strong>Stops:</strong> {{ trip.stops.count }}
+                </p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="{% url 'trip_detail' trip.id %}" class="btn btn-primary">View</a>
+                <a href="{% url 'trip_edit' trip.id %}" class="btn btn-secondary">Edit</a>
+                <a href="{% url 'trip_delete' trip.id %}" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card text-center" style="padding: 3rem;">
+        <h2 style="color: #999; margin-bottom: 1rem;">No trips found</h2>
+        <p style="color: #999; margin-bottom: 2rem;">Start planning your first adventure!</p>
+        <a href="{% url 'trip_create' %}" class="btn btn-primary">Create Your First Trip</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

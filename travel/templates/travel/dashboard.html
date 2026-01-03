@@ -1,0 +1,74 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Dashboard - GlobeTrotter{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>Welcome, {{ user.username }}!</h1>
+        <a href="{% url 'trip_create' %}" class="btn btn-primary">+ Plan New Trip</a>
+    </div>
+    
+    <!-- Stats -->
+    <div class="grid grid-3 mb-2">
+        <div class="card text-center">
+            <h3 style="color: #667eea; font-size: 2.5rem;">{{ total_trips }}</h3>
+            <p>Total Trips</p>
+        </div>
+        <div class="card text-center">
+            <h3 style="color: #28a745; font-size: 2.5rem;">{{ upcoming_trips|length }}</h3>
+            <p>Upcoming Trips</p>
+        </div>
+        <div class="card text-center">
+            <h3 style="color: #6c757d; font-size: 2.5rem;">{{ past_trips|length }}</h3>
+            <p>Past Trips</p>
+        </div>
+    </div>
+    
+    <!-- Upcoming Trips -->
+    <div class="card">
+        <h2 class="card-header">Upcoming Trips</h2>
+        {% if upcoming_trips %}
+        <div class="grid grid-2">
+            {% for trip in upcoming_trips %}
+            <div style="border: 1px solid #eee; border-radius: 5px; padding: 1.5rem;">
+                <h3 style="color: #667eea; margin-bottom: 0.5rem;">{{ trip.title }}</h3>
+                <p style="color: #666; margin-bottom: 1rem;">
+                    📅 {{ trip.start_date }} - {{ trip.end_date }} ({{ trip.get_duration_days }} days)
+                </p>
+                {% if trip.description %}
+                <p style="margin-bottom: 1rem;">{{ trip.description|truncatewords:20 }}</p>
+                {% endif %}
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'trip_detail' trip.id %}" class="btn btn-primary">View Details</a>
+                    <a href="{% url 'trip_edit' trip.id %}" class="btn btn-secondary">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #999; padding: 2rem;">No upcoming trips. Start planning your next adventure!</p>
+        {% endif %}
+    </div>
+    
+    <!-- Recent Past Trips -->
+    {% if past_trips %}
+    <div class="card mt-2">
+        <h2 class="card-header">Recent Past Trips</h2>
+        <div class="grid grid-3">
+            {% for trip in past_trips %}
+            <div style="border: 1px solid #eee; border-radius: 5px; padding: 1rem;">
+                <h4 style="color: #6c757d;">{{ trip.title }}</h4>
+                <p style="font-size: 0.9rem; color: #666;">{{ trip.start_date }} - {{ trip.end_date }}</p>
+                <a href="{% url 'trip_detail' trip.id %}" class="btn btn-secondary" style="margin-top: 0.5rem;">View</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-2">
+        <a href="{% url 'trip_list' %}" class="btn btn-primary">View All Trips</a>
+    </div>
+</div>
+{% endblock %}

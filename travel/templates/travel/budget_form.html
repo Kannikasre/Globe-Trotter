@@ -1,0 +1,51 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Manage Budget - {{ trip.title }}{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <div class="card">
+        <h2 class="card-header">Manage Budget for {{ trip.title }}</h2>
+        
+        <div style="background: #f8f9ff; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1.5rem; color: {% if budget.is_over_budget %}#dc3545{% else %}#28a745{% endif %};">
+                Current Total: ${{ budget.total_cost|floatformat:2 }}
+            </h3>
+            {% if budget.budget_limit %}
+            <p>Budget Limit: ${{ budget.budget_limit|floatformat:2 }}</p>
+            {% if budget.is_over_budget %}
+            <span class="badge badge-danger">⚠️ Over Budget!</span>
+            {% else %}
+            <span class="badge badge-success">✓ Within Budget</span>
+            {% endif %}
+            {% endif %}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small style="color: #666;">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color: #dc3545; font-size: 0.9rem;">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <p style="background: #fff3cd; padding: 1rem; border-radius: 5px; margin-bottom: 1rem;">
+                <strong>Note:</strong> Activity costs are automatically calculated from your activities. 
+                The total will be updated when you save.
+            </p>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">Save Budget</button>
+                <a href="{% url 'trip_detail' trip.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

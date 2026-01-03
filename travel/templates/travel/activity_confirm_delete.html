@@ -1,0 +1,21 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Delete Activity{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin-top: 3rem;">
+    <div class="card">
+        <h2 class="card-header" style="color: #dc3545;">Confirm Deletion</h2>
+        <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
+            Are you sure you want to delete the activity <strong>"{{ activity.name }}"</strong>?
+        </p>
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-danger">Yes, Delete Activity</button>
+                <a href="{% url 'trip_detail' activity.stop.trip.id %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

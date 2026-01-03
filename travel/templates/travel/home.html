@@ -1,0 +1,37 @@
+{% extends 'travel/base.html' %}
+
+{% block title %}Home - GlobeTrotter{% endblock %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 2rem; text-align: center;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">Plan Your Perfect Journey</h1>
+        <p style="font-size: 1.25rem; margin-bottom: 2rem;">Create multi-city itineraries, manage budgets, and share your travel plans with ease.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{% url 'signup' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Get Started Free</a>
+            <a href="{% url 'login' %}" class="btn btn-outline" style="font-size: 1.1rem; padding: 1rem 2rem;">Login</a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="text-center mt-2 mb-2" style="font-size: 2rem;">Features</h2>
+    <div class="grid grid-3">
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
+            <h3>Multi-City Planning</h3>
+            <p>Create detailed itineraries with multiple destinations and activities.</p>
+        </div>
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
+            <h3>Budget Tracking</h3>
+            <p>Automatic budget calculation and cost breakdowns by category.</p>
+        </div>
+        <div class="card text-center">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
+            <h3>Share Plans</h3>
+            <p>Share your itineraries publicly or with friends via unique links.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
